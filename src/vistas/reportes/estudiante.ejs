@@ -1,0 +1,103 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= estudiante.nombres %> <%= estudiante.apellidos %></h1>
+    <p class="texto-suave">
+      Documento <%= estudiante.documento %> · <%= estudiante.programa %> ·
+      <span class="etiqueta etiqueta--<%= estudiante.activo ? 'activo' : 'inactivo' %>">
+        <%= estudiante.activo ? 'Activo' : 'Inactivo' %>
+      </span>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/reportes/estudiantes">Volver al listado</a>
+    <a class="boton" href="/reportes/estudiantes/<%= estudiante.id %>/exportar.csv">Descargar CSV</a>
+  </div>
+</section>
+
+<div class="aviso aviso--alerta">
+  El promedio general usa solo matrículas <strong>activas</strong> con las tres notas.
+  Las matrículas <strong>retiradas</strong> se muestran en el historial, pero quedan
+  excluidas del promedio y de los conteos. Las notas <strong>pendientes</strong> no
+  cuentan como cero.
+</div>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.matriculados %></span>
+    <span class="indicador__etiqueta">Matrículas activas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.retiradas %></span>
+    <span class="indicador__etiqueta">Retiradas (excluidas)</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.conDefinitiva %></span>
+    <span class="indicador__etiqueta">Con definitiva</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.promedio === null ? '—' : reporte.promedio %></span>
+    <span class="indicador__etiqueta">Promedio general</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.aprobados %></span>
+    <span class="indicador__etiqueta">Aprobadas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.reprobados %></span>
+    <span class="indicador__etiqueta">Reprobadas</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= reporte.pendientes %></span>
+    <span class="indicador__etiqueta">Pendientes</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Historial de asignaturas</h2>
+  <% if (reporte.filas.length === 0) { %>
+    <div class="aviso aviso--alerta">Este estudiante no tiene matrículas registradas.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Matrícula</th>
+            <th>Corte 1</th>
+            <th>Corte 2</th>
+            <th>Corte 3</th>
+            <th>Definitiva</th>
+            <th>Estado académico</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reporte.filas.forEach(function (fila) { %>
+            <tr>
+              <td><%= fila.codigo %></td>
+              <td><%= fila.asignatura_nombre %></td>
+              <td><%= fila.periodo %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.matricula_estado === 'activa' ? 'activo' : 'inactivo' %>">
+                  <%= fila.matricula_estado === 'activa' ? 'Activa' : 'Retirada' %>
+                </span>
+              </td>
+              <td><%= fila.corte1 === null ? '—' : fila.corte1 %></td>
+              <td><%= fila.corte2 === null ? '—' : fila.corte2 %></td>
+              <td><%= fila.corte3 === null ? '—' : fila.corte3 %></td>
+              <td><%= fila.definitiva === null ? '—' : fila.definitiva %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado.toLowerCase() %>"><%= fila.estado %></span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

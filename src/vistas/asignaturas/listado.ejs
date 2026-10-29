@@ -1,0 +1,132 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Asignaturas</h1>
+    <p class="texto-suave">Administra asignaturas, docentes responsables y ponderaciones de los cortes.</p>
+  </div>
+  <a class="boton" href="/asignaturas/nuevo">Nueva asignatura</a>
+</section>
+
+<form class="filtros" action="/asignaturas" method="get">
+  <div class="campo">
+    <label for="q">Buscar</label>
+    <input id="q" name="q" type="search" value="<%= busqueda %>" placeholder="Código o nombre">
+  </div>
+
+  <div class="campo">
+    <label for="docente">Docente</label>
+    <select id="docente" name="docente">
+      <option value="">Todos</option>
+      <% docentes.forEach(function (docente) { %>
+        <option value="<%= docente.id %>" <%= docenteId === docente.id ? 'selected' : '' %>>
+          <%= docente.apellidos %>, <%= docente.nombres %><%= docente.activo ? '' : ' (inactivo)' %>
+        </option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="estado">Estado</label>
+    <select id="estado" name="estado">
+      <option value="todos" <%= estado === 'todos' ? 'selected' : '' %>>Todas</option>
+      <option value="activo" <%= estado === 'activo' ? 'selected' : '' %>>Activas</option>
+      <option value="inactivo" <%= estado === 'inactivo' ? 'selected' : '' %>>Inactivas</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="porPagina">Registros por página</label>
+    <select id="porPagina" name="porPagina">
+      <% tamanosPagina.forEach(function (tamano) { %>
+        <option value="<%= tamano %>" <%= porPagina === tamano ? 'selected' : '' %>><%= tamano %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton">Filtrar</button>
+    <a class="boton boton--claro" href="/asignaturas">Limpiar</a>
+  </div>
+</form>
+
+<p class="texto-suave">
+  Mostrando <strong><%= filas.length %></strong> de <strong><%= total %></strong> asignaturas.
+</p>
+
+<% if (filas.length === 0) { %>
+  <div class="aviso aviso--alerta">No se encontraron asignaturas con los criterios de búsqueda.</div>
+<% } else { %>
+  <section class="tarjeta">
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Docente</th>
+            <th>Créditos</th>
+            <th>Pesos (1/2/3)</th>
+            <th>Matriculados</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% filas.forEach(function (asignatura) { %>
+            <tr class="fila-asignatura">
+              <td><%= asignatura.codigo %></td>
+              <td><%= asignatura.nombre %></td>
+              <td><%= asignatura.periodo %></td>
+              <td><%= asignatura.docente_nombre %></td>
+              <td><%= asignatura.creditos %></td>
+              <td><%= asignatura.peso1 %>% / <%= asignatura.peso2 %>% / <%= asignatura.peso3 %>%</td>
+              <td><%= asignatura.matriculados %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= asignatura.activo ? 'activo' : 'inactivo' %>">
+                  <%= asignatura.activo ? 'Activa' : 'Inactiva' %>
+                </span>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/asignaturas/<%= asignatura.id %>">Ver</a>
+                  <a class="boton boton--claro boton--pequeno" href="/asignaturas/<%= asignatura.id %>/editar">Editar</a>
+                  <form action="/asignaturas/<%= asignatura.id %>/estado" method="post" class="en-linea">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="accion" value="<%= asignatura.activo ? 'inactivar' : 'activar' %>">
+                    <button type="submit" class="boton boton--pequeno <%= asignatura.activo ? 'boton--peligro' : '' %>">
+                      <%= asignatura.activo ? 'Inactivar' : 'Activar' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% } %>
+
+<% if (totalPaginas > 1) { %>
+  <% const urlPagina = (numero) => `/asignaturas?q=${encodeURIComponent(busqueda)}&estado=${encodeURIComponent(estado)}&docente=${docenteId || ''}&porPagina=${porPagina}&pagina=${numero}`; %>
+  <nav class="paginacion" aria-label="Paginación de asignaturas">
+    <% if (pagina > 1) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina - 1) %>">Anterior</a>
+    <% } %>
+    <% for (let numero = 1; numero <= totalPaginas; numero++) { %>
+      <% if (numero === pagina) { %>
+        <span class="paginacion__actual"><%= numero %></span>
+      <% } else { %>
+        <a class="paginacion__enlace" href="<%= urlPagina(numero) %>"><%= numero %></a>
+      <% } %>
+    <% } %>
+    <% if (pagina < totalPaginas) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina + 1) %>">Siguiente</a>
+    <% } %>
+    <span class="texto-suave">Página <%= pagina %> de <%= totalPaginas %></span>
+  </nav>
+<% } %>
+
+<%- include('../plantillas/pie') %>

@@ -1,0 +1,113 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= asignatura.codigo %> · <%= asignatura.nombre %></h1>
+    <p class="texto-suave">
+      Periodo <%= asignatura.periodo %> · <%= asignatura.creditos %> créditos ·
+      Docente: <%= asignatura.docente_nombre %> ·
+      Ponderaciones <%= asignatura.peso1 %>% / <%= asignatura.peso2 %>% / <%= asignatura.peso3 %>%
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/reportes">Volver a reportes</a>
+    <a class="boton" href="/reportes/asignaturas/<%= asignatura.id %>/exportar.csv">Descargar CSV</a>
+  </div>
+</section>
+
+<div class="aviso aviso--alerta">
+  Las matrículas <strong>retiradas</strong> aparecen en la tabla con su estado, pero
+  no se incluyen en los conteos ni en el promedio. Las notas
+  <strong>pendientes</strong> no cuentan como cero.
+</div>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.matriculados %></span>
+    <span class="indicador__etiqueta">Matrículas activas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.retiradas %></span>
+    <span class="indicador__etiqueta">Retiradas (excluidas)</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.conDefinitiva %></span>
+    <span class="indicador__etiqueta">Con definitiva</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.promedio === null ? '—' : reporte.promedio %></span>
+    <span class="indicador__etiqueta">Promedio</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.aprobados %></span>
+    <span class="indicador__etiqueta">Aprobados</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.reprobados %></span>
+    <span class="indicador__etiqueta">Reprobados</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= reporte.pendientes %></span>
+    <span class="indicador__etiqueta">Pendientes</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.maxima === null ? '—' : reporte.maxima %></span>
+    <span class="indicador__etiqueta">Nota máxima</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= reporte.minima === null ? '—' : reporte.minima %></span>
+    <span class="indicador__etiqueta">Nota mínima</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Detalle de matrículas</h2>
+  <% if (reporte.filas.length === 0) { %>
+    <div class="aviso aviso--alerta">Esta asignatura no tiene matrículas registradas.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Estudiante</th>
+            <th>Matrícula</th>
+            <th>Corte 1</th>
+            <th>Corte 2</th>
+            <th>Corte 3</th>
+            <th>Definitiva</th>
+            <th>Estado académico</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% reporte.filas.forEach(function (fila) { %>
+            <tr>
+              <td><%= fila.documento %></td>
+              <td><%= fila.estudiante_nombres %> <%= fila.estudiante_apellidos %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.matricula_estado === 'activa' ? 'activo' : 'inactivo' %>">
+                  <%= fila.matricula_estado === 'activa' ? 'Activa' : 'Retirada' %>
+                </span>
+              </td>
+              <td><%= fila.corte1 === null ? '—' : fila.corte1 %></td>
+              <td><%= fila.corte2 === null ? '—' : fila.corte2 %></td>
+              <td><%= fila.corte3 === null ? '—' : fila.corte3 %></td>
+              <td><%= fila.definitiva === null ? '—' : fila.definitiva %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado.toLowerCase() %>"><%= fila.estado %></span>
+              </td>
+              <td>
+                <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.matricula_id %>/notas">
+                  Ver notas
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

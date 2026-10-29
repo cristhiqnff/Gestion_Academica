@@ -1,0 +1,134 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= asignatura.codigo %> · <%= asignatura.nombre %></h1>
+    <p class="texto-suave">
+      Periodo <%= asignatura.periodo %> ·
+      <span class="etiqueta etiqueta--<%= asignatura.activo ? 'activo' : 'inactivo' %>">
+        <%= asignatura.activo ? 'Activa' : 'Inactiva' %>
+      </span>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/asignaturas">Volver al listado</a>
+    <a class="boton boton--claro" href="/matriculas?asignatura=<%= asignatura.id %>">Ver matrículas</a>
+    <a class="boton" href="/matriculas/nueva?asignatura=<%= asignatura.id %>">Matricular estudiante</a>
+    <a class="boton boton--claro" href="/asignaturas/<%= asignatura.id %>/editar">Editar asignatura</a>
+    <form action="/asignaturas/<%= asignatura.id %>/estado" method="post" class="en-linea">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="accion" value="<%= asignatura.activo ? 'inactivar' : 'activar' %>">
+      <button type="submit" class="boton <%= asignatura.activo ? 'boton--peligro' : '' %>">
+        <%= asignatura.activo ? 'Inactivar asignatura' : 'Activar asignatura' %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.matriculados %></span>
+    <span class="indicador__etiqueta">Estudiantes matriculados</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.aprobados %></span>
+    <span class="indicador__etiqueta">Aprobados</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.reprobados %></span>
+    <span class="indicador__etiqueta">Reprobados</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= resumen.pendientes %></span>
+    <span class="indicador__etiqueta">Pendientes</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.calificaciones %></span>
+    <span class="indicador__etiqueta">Calificaciones registradas</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Datos de la asignatura</h2>
+  <dl class="detalle">
+    <div><dt>Código</dt><dd><%= asignatura.codigo %></dd></div>
+    <div><dt>Periodo</dt><dd><%= asignatura.periodo %></dd></div>
+    <div><dt>Créditos</dt><dd><%= asignatura.creditos %></dd></div>
+    <div>
+      <dt>Docente responsable</dt>
+      <dd>
+        <a href="/docentes/<%= asignatura.docente_id %>"><%= asignatura.docente_nombre %></a>
+        <% if (!asignatura.docente_activo) { %>
+          <span class="etiqueta etiqueta--inactivo">Docente inactivo</span>
+        <% } %>
+      </dd>
+    </div>
+    <div>
+      <dt>Ponderaciones</dt>
+      <dd>Corte 1: <%= asignatura.peso1 %>% · Corte 2: <%= asignatura.peso2 %>% · Corte 3: <%= asignatura.peso3 %>%</dd>
+    </div>
+    <div><dt>Registrada el</dt><dd><%= asignatura.creado_en %></dd></div>
+  </dl>
+</section>
+
+<section class="tarjeta">
+  <h2>Estudiantes matriculados</h2>
+  <% if (matriculas.length === 0) { %>
+    <div class="aviso aviso--alerta">Esta asignatura no tiene matrículas registradas.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Estudiante</th>
+            <th>Matrícula</th>
+            <th>Corte 1</th>
+            <th>Corte 2</th>
+            <th>Corte 3</th>
+            <th>Definitiva</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% matriculas.forEach(function (fila) { %>
+            <tr>
+              <td><%= fila.documento %></td>
+              <td><%= fila.estudiante %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.matricula_estado === 'activa' ? 'activo' : 'inactivo' %>">
+                  <%= fila.matricula_estado === 'activa' ? 'Activa' : 'Retirada' %>
+                </span>
+              </td>
+              <td><%= fila.corte1 !== null ? fila.corte1 : '—' %></td>
+              <td><%= fila.corte2 !== null ? fila.corte2 : '—' %></td>
+              <td><%= fila.corte3 !== null ? fila.corte3 : '—' %></td>
+              <td><%= fila.definitiva !== null ? fila.definitiva : '—' %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado.toLowerCase() %>"><%= fila.estado %></span>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.matricula_id %>">Ver</a>
+                  <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.matricula_id %>/notas">Notas</a>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <% if (!asignatura.activo) { %>
+    <p class="texto-suave">
+      La asignatura está inactiva, pero conserva sus
+      <strong><%= resumen.matriculados %></strong> matrículas y
+      <strong><%= resumen.calificaciones %></strong> calificaciones. Las notas se administran
+      desde cada matrícula y no se eliminan al inactivar la asignatura.
+    </p>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

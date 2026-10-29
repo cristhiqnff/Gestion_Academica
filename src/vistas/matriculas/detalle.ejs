@@ -1,0 +1,90 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Matrícula de <%= matricula.estudiante_nombres %> <%= matricula.estudiante_apellidos %></h1>
+    <p class="texto-suave">
+      <%= matricula.asignatura_codigo %> · <%= matricula.asignatura_nombre %> ·
+      <%= matricula.asignatura_periodo %> ·
+      <span class="etiqueta etiqueta--<%= matricula.estado === 'activa' ? 'activo' : 'inactivo' %>">
+        <%= matricula.estado === 'activa' ? 'Activa' : 'Retirada' %>
+      </span>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/matriculas">Volver al listado</a>
+    <a class="boton" href="/matriculas/<%= matricula.id %>/notas">Registrar / editar notas</a>
+    <form action="/matriculas/<%= matricula.id %>/estado" method="post" class="en-linea">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="accion" value="<%= matricula.estado === 'activa' ? 'retirar' : 'reactivar' %>">
+      <button type="submit" class="boton <%= matricula.estado === 'activa' ? 'boton--peligro' : '' %>">
+        <%= matricula.estado === 'activa' ? 'Retirar matrícula' : 'Reactivar matrícula' %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.registradas %>/3</span>
+    <span class="indicador__etiqueta">Notas registradas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.definitiva === null ? '—' : resumen.definitiva %></span>
+    <span class="indicador__etiqueta">Definitiva calculada</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.estado %></span>
+    <span class="indicador__etiqueta">Estado académico</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Datos de la matrícula</h2>
+  <dl class="detalle">
+    <div><dt>Estudiante</dt><dd><%= matricula.estudiante_nombres %> <%= matricula.estudiante_apellidos %></dd></div>
+    <div><dt>Documento</dt><dd><%= matricula.estudiante_documento %></dd></div>
+    <div><dt>Programa</dt><dd><%= matricula.estudiante_programa %></dd></div>
+    <div><dt>Asignatura</dt><dd><%= matricula.asignatura_codigo %> · <%= matricula.asignatura_nombre %></dd></div>
+    <div><dt>Periodo</dt><dd><%= matricula.asignatura_periodo %></dd></div>
+    <div><dt>Docente responsable</dt><dd><%= matricula.docente_nombre %></dd></div>
+    <div><dt>Créditos</dt><dd><%= matricula.asignatura_creditos %></dd></div>
+    <div><dt>Ponderaciones</dt><dd><%= matricula.peso1 %>% / <%= matricula.peso2 %>% / <%= matricula.peso3 %>%</dd></div>
+    <div><dt>Registrada el</dt><dd><%= matricula.creado_en %></dd></div>
+  </dl>
+</section>
+
+<section class="tarjeta">
+  <h2>Calificaciones por corte</h2>
+  <div class="tabla-contenedor">
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Corte 1</th>
+          <th>Corte 2</th>
+          <th>Corte 3</th>
+          <th>Definitiva</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><%= matricula.corte1 === null ? '—' : matricula.corte1 %></td>
+          <td><%= matricula.corte2 === null ? '—' : matricula.corte2 %></td>
+          <td><%= matricula.corte3 === null ? '—' : matricula.corte3 %></td>
+          <td><%= resumen.definitiva === null ? '—' : resumen.definitiva %></td>
+          <td>
+            <span class="etiqueta etiqueta--<%= resumen.estado.toLowerCase() %>"><%= resumen.estado %></span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <% if (matricula.estado === 'retirada') { %>
+    <p class="texto-suave">
+      La matrícula está retirada, pero sus calificaciones se conservan y pueden reactivarse.
+    </p>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

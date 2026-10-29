@@ -1,0 +1,124 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina">
+  <h1><%= modo === 'crear' ? 'Nuevo docente' : 'Editar docente' %></h1>
+  <p class="texto-suave">Los campos marcados con <strong>*</strong> son obligatorios.</p>
+</section>
+
+<section class="tarjeta">
+  <form action="<%= accion %>" method="post" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="rejilla rejilla--formulario">
+      <div class="campo <%= errores.documento ? 'campo--error' : '' %>">
+        <label for="documento">Documento *</label>
+        <input id="documento" name="documento" type="text" inputmode="numeric"
+               value="<%= valores.documento %>" required maxlength="20"
+               pattern="[0-9]{4,20}" placeholder="Ej. 10101010">
+        <% if (errores.documento) { %><span class="mensaje-campo"><%= errores.documento %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.email ? 'campo--error' : '' %>">
+        <label for="email">Correo electrónico *</label>
+        <input id="email" name="email" type="email" value="<%= valores.email %>"
+               required maxlength="120" placeholder="docente@institucion.edu.co">
+        <% if (errores.email) { %><span class="mensaje-campo"><%= errores.email %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.nombres ? 'campo--error' : '' %>">
+        <label for="nombres">Nombres *</label>
+        <input id="nombres" name="nombres" type="text" value="<%= valores.nombres %>"
+               required maxlength="80" placeholder="Ej. Laura">
+        <% if (errores.nombres) { %><span class="mensaje-campo"><%= errores.nombres %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.apellidos ? 'campo--error' : '' %>">
+        <label for="apellidos">Apellidos *</label>
+        <input id="apellidos" name="apellidos" type="text" value="<%= valores.apellidos %>"
+               required maxlength="80" placeholder="Ej. Gómez">
+        <% if (errores.apellidos) { %><span class="mensaje-campo"><%= errores.apellidos %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.telefono ? 'campo--error' : '' %>">
+        <label for="telefono">Teléfono</label>
+        <input id="telefono" name="telefono" type="tel" value="<%= valores.telefono %>"
+               maxlength="20" placeholder="Ej. 3001112233">
+        <% if (errores.telefono) { %><span class="mensaje-campo"><%= errores.telefono %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.especialidad ? 'campo--error' : '' %>">
+        <label for="especialidad">Especialidad</label>
+        <input id="especialidad" name="especialidad" type="text" value="<%= valores.especialidad %>"
+               maxlength="100" placeholder="Ej. Ingeniería de Sistemas">
+        <% if (errores.especialidad) { %><span class="mensaje-campo"><%= errores.especialidad %></span><% } %>
+      </div>
+    </div>
+
+    <section class="cuenta-panel">
+      <h2>Cuenta de acceso</h2>
+
+      <% if (modo === 'editar' && tieneCuenta) { %>
+        <p class="texto-suave">
+          Este docente ya tiene una cuenta asociada:
+          <strong><%= cuentaEmail %></strong>.
+          No se creará una cuenta duplicada. Puedes cambiar la contraseña si lo necesitas.
+        </p>
+
+        <div class="rejilla rejilla--formulario">
+          <div class="campo <%= errores.password ? 'campo--error' : '' %>">
+            <label for="password">Nueva contraseña (opcional)</label>
+            <input id="password" name="password" type="password" minlength="8" maxlength="72"
+                   autocomplete="new-password" placeholder="Dejar en blanco para conservar">
+            <% if (errores.password) { %><span class="mensaje-campo"><%= errores.password %></span><% } %>
+          </div>
+
+          <div class="campo <%= errores.password2 ? 'campo--error' : '' %>">
+            <label for="password2">Confirmar nueva contraseña</label>
+            <input id="password2" name="password2" type="password" minlength="8" maxlength="72"
+                   autocomplete="new-password" placeholder="Repite la contraseña">
+            <% if (errores.password2) { %><span class="mensaje-campo"><%= errores.password2 %></span><% } %>
+          </div>
+        </div>
+      <% } else { %>
+        <label class="casilla">
+          <input id="crear_cuenta" name="crear_cuenta" type="checkbox"
+                 <%= valores.crear_cuenta ? 'checked' : '' %>>
+          Crear cuenta de acceso para este docente
+        </label>
+        <p class="campo__ayuda">
+          La cuenta usa el mismo correo del docente y el rol DOCENTE. Si se deja sin marcar,
+          el docente se registra sin acceso al sistema.
+        </p>
+
+        <div id="campos-password" class="<%= valores.crear_cuenta ? '' : 'oculto' %>">
+          <div class="rejilla rejilla--formulario">
+            <div class="campo <%= errores.password ? 'campo--error' : '' %>">
+              <label for="password">Contraseña *</label>
+              <input id="password" name="password" type="password" minlength="8" maxlength="72"
+                     autocomplete="new-password" placeholder="Mínimo 8 caracteres, letras y números">
+              <% if (errores.password) { %><span class="mensaje-campo"><%= errores.password %></span><% } %>
+            </div>
+
+            <div class="campo <%= errores.password2 ? 'campo--error' : '' %>">
+              <label for="password2">Confirmar contraseña *</label>
+              <input id="password2" name="password2" type="password" minlength="8" maxlength="72"
+                     autocomplete="new-password" placeholder="Repite la contraseña">
+              <% if (errores.password2) { %><span class="mensaje-campo"><%= errores.password2 %></span><% } %>
+            </div>
+          </div>
+        </div>
+      <% } %>
+    </section>
+
+    <div class="acciones">
+      <button type="submit" class="boton">
+        <%= modo === 'crear' ? 'Registrar docente' : 'Guardar cambios' %>
+      </button>
+      <a class="boton boton--claro"
+         href="<%= docenteId ? '/docentes/' + docenteId : '/docentes' %>">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<script src="/js/cuentas.js"></script>
+<%- include('../plantillas/pie') %>

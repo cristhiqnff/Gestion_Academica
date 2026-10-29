@@ -1,0 +1,128 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Docentes</h1>
+    <p class="texto-suave">Administra los docentes y su cuenta de acceso al sistema.</p>
+  </div>
+  <a class="boton" href="/docentes/nuevo">Nuevo docente</a>
+</section>
+
+<form class="filtros" action="/docentes" method="get">
+  <div class="campo">
+    <label for="q">Buscar</label>
+    <input id="q" name="q" type="search" value="<%= busqueda %>"
+           placeholder="Nombre, documento o correo">
+  </div>
+
+  <div class="campo">
+    <label for="estado">Estado</label>
+    <select id="estado" name="estado">
+      <option value="todos" <%= estado === 'todos' ? 'selected' : '' %>>Todos</option>
+      <option value="activo" <%= estado === 'activo' ? 'selected' : '' %>>Activos</option>
+      <option value="inactivo" <%= estado === 'inactivo' ? 'selected' : '' %>>Inactivos</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="porPagina">Registros por página</label>
+    <select id="porPagina" name="porPagina">
+      <% tamanosPagina.forEach(function (tamano) { %>
+        <option value="<%= tamano %>" <%= porPagina === tamano ? 'selected' : '' %>><%= tamano %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton">Filtrar</button>
+    <a class="boton boton--claro" href="/docentes">Limpiar</a>
+  </div>
+</form>
+
+<p class="texto-suave">
+  Mostrando <strong><%= filas.length %></strong> de <strong><%= total %></strong> docentes.
+</p>
+
+<% if (filas.length === 0) { %>
+  <div class="aviso aviso--alerta">No se encontraron docentes con los criterios de búsqueda.</div>
+<% } else { %>
+  <section class="tarjeta">
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Docente</th>
+            <th>Especialidad</th>
+            <th>Asignaturas</th>
+            <th>Cuenta</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% filas.forEach(function (docente) { %>
+            <tr class="fila-docente">
+              <td><%= docente.documento %></td>
+              <td>
+                <span class="celda-principal"><%= docente.nombres %> <%= docente.apellidos %></span>
+                <span class="campo__ayuda"><%= docente.email %></span>
+              </td>
+              <td><%= docente.especialidad || '—' %></td>
+              <td><%= docente.asignaturas %></td>
+              <td>
+                <% if (docente.usuario_id) { %>
+                  <span class="etiqueta etiqueta--<%= docente.usuario_activo ? 'activo' : 'inactivo' %>">
+                    <%= docente.usuario_activo ? 'Con acceso' : 'Cuenta inactiva' %>
+                  </span>
+                <% } else { %>
+                  <span class="etiqueta etiqueta--inactivo">Sin cuenta</span>
+                <% } %>
+              </td>
+              <td>
+                <span class="etiqueta etiqueta--<%= docente.activo ? 'activo' : 'inactivo' %>">
+                  <%= docente.activo ? 'Activo' : 'Inactivo' %>
+                </span>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/docentes/<%= docente.id %>">Ver</a>
+                  <a class="boton boton--claro boton--pequeno" href="/docentes/<%= docente.id %>/editar">Editar</a>
+                  <form action="/docentes/<%= docente.id %>/estado" method="post" class="en-linea">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="accion" value="<%= docente.activo ? 'inactivar' : 'activar' %>">
+                    <button type="submit" class="boton boton--pequeno <%= docente.activo ? 'boton--peligro' : '' %>">
+                      <%= docente.activo ? 'Inactivar' : 'Activar' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% } %>
+
+<% if (totalPaginas > 1) { %>
+  <% const urlPagina = (numero) => `/docentes?q=${encodeURIComponent(busqueda)}&estado=${encodeURIComponent(estado)}&porPagina=${porPagina}&pagina=${numero}`; %>
+  <nav class="paginacion" aria-label="Paginación de docentes">
+    <% if (pagina > 1) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina - 1) %>">Anterior</a>
+    <% } %>
+    <% for (let numero = 1; numero <= totalPaginas; numero++) { %>
+      <% if (numero === pagina) { %>
+        <span class="paginacion__actual"><%= numero %></span>
+      <% } else { %>
+        <a class="paginacion__enlace" href="<%= urlPagina(numero) %>"><%= numero %></a>
+      <% } %>
+    <% } %>
+    <% if (pagina < totalPaginas) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina + 1) %>">Siguiente</a>
+    <% } %>
+    <span class="texto-suave">Página <%= pagina %> de <%= totalPaginas %></span>
+  </nav>
+<% } %>
+
+<%- include('../plantillas/pie') %>

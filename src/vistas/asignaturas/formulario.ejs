@@ -1,0 +1,102 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina">
+  <h1><%= modo === 'crear' ? 'Nueva asignatura' : 'Editar asignatura' %></h1>
+  <p class="texto-suave">Los campos marcados con <strong>*</strong> son obligatorios.</p>
+</section>
+
+<section class="tarjeta">
+  <form action="<%= accion %>" method="post" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="rejilla rejilla--formulario">
+      <div class="campo <%= errores.codigo ? 'campo--error' : '' %>">
+        <label for="codigo">Código *</label>
+        <input id="codigo" name="codigo" type="text" value="<%= valores.codigo %>"
+               required maxlength="20" placeholder="Ej. INF101">
+        <% if (errores.codigo) { %><span class="mensaje-campo"><%= errores.codigo %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.periodo ? 'campo--error' : '' %>">
+        <label for="periodo">Periodo *</label>
+        <input id="periodo" name="periodo" type="text" value="<%= valores.periodo %>"
+               required maxlength="6" placeholder="Ej. 2026-1">
+        <span class="campo__ayuda">Formato AAAA-N.</span>
+        <% if (errores.periodo) { %><span class="mensaje-campo"><%= errores.periodo %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.creditos ? 'campo--error' : '' %>">
+        <label for="creditos">Créditos *</label>
+        <input id="creditos" name="creditos" type="number" min="1" max="10" step="1"
+               value="<%= valores.creditos %>" required>
+        <% if (errores.creditos) { %><span class="mensaje-campo"><%= errores.creditos %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.docente_id ? 'campo--error' : '' %>">
+        <label for="docente_id">Docente responsable *</label>
+        <select id="docente_id" name="docente_id" required>
+          <option value="">Selecciona un docente</option>
+          <% docentes.forEach(function (docente) { %>
+            <option value="<%= docente.id %>"
+              <%= String(valores.docente_id) === String(docente.id) ? 'selected' : '' %>
+              <%= (!docente.activo && docente.id !== docenteActualId) ? 'disabled' : '' %>>
+              <%= docente.apellidos %>, <%= docente.nombres %><%= docente.activo ? '' : ' (inactivo)' %>
+            </option>
+          <% }); %>
+        </select>
+        <% if (errores.docente_id) { %><span class="mensaje-campo"><%= errores.docente_id %></span><% } %>
+      </div>
+    </div>
+
+    <div class="campo <%= errores.nombre ? 'campo--error' : '' %>">
+      <label for="nombre">Nombre de la asignatura *</label>
+      <input id="nombre" name="nombre" type="text" value="<%= valores.nombre %>"
+             required maxlength="100" placeholder="Ej. Programación I">
+      <% if (errores.nombre) { %><span class="mensaje-campo"><%= errores.nombre %></span><% } %>
+    </div>
+
+    <section class="cuenta-panel">
+      <h2>Ponderaciones de los cortes</h2>
+      <p class="texto-suave">
+        Cada corte puede tener un porcentaje distinto. La suma de los tres debe ser exactamente 100%.
+      </p>
+
+      <% if (errores.pesos) { %>
+        <div class="aviso aviso--error"><%= errores.pesos %></div>
+      <% } %>
+
+      <div class="rejilla rejilla--pesos">
+        <div class="campo <%= errores.peso1 ? 'campo--error' : '' %>">
+          <label for="peso1">Corte 1 (%) *</label>
+          <input id="peso1" name="peso1" type="number" min="0" max="100" step="0.01"
+                 value="<%= valores.peso1 %>" required placeholder="30">
+          <% if (errores.peso1) { %><span class="mensaje-campo"><%= errores.peso1 %></span><% } %>
+        </div>
+
+        <div class="campo <%= errores.peso2 ? 'campo--error' : '' %>">
+          <label for="peso2">Corte 2 (%) *</label>
+          <input id="peso2" name="peso2" type="number" min="0" max="100" step="0.01"
+                 value="<%= valores.peso2 %>" required placeholder="30">
+          <% if (errores.peso2) { %><span class="mensaje-campo"><%= errores.peso2 %></span><% } %>
+        </div>
+
+        <div class="campo <%= errores.peso3 ? 'campo--error' : '' %>">
+          <label for="peso3">Corte 3 (%) *</label>
+          <input id="peso3" name="peso3" type="number" min="0" max="100" step="0.01"
+                 value="<%= valores.peso3 %>" required placeholder="40">
+          <% if (errores.peso3) { %><span class="mensaje-campo"><%= errores.peso3 %></span><% } %>
+        </div>
+      </div>
+    </section>
+
+    <div class="acciones">
+      <button type="submit" class="boton">
+        <%= modo === 'crear' ? 'Registrar asignatura' : 'Guardar cambios' %>
+      </button>
+      <a class="boton boton--claro"
+         href="<%= asignaturaId ? '/asignaturas/' + asignaturaId : '/asignaturas' %>">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<%- include('../plantillas/pie') %>

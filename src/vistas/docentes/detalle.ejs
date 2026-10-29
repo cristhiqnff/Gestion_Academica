@@ -1,0 +1,112 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= docente.nombres %> <%= docente.apellidos %></h1>
+    <p class="texto-suave">
+      Documento <%= docente.documento %> ·
+      <span class="etiqueta etiqueta--<%= docente.activo ? 'activo' : 'inactivo' %>">
+        <%= docente.activo ? 'Activo' : 'Inactivo' %>
+      </span>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/docentes">Volver al listado</a>
+    <a class="boton" href="/docentes/<%= docente.id %>/editar">Editar datos</a>
+    <form action="/docentes/<%= docente.id %>/estado" method="post" class="en-linea">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="accion" value="<%= docente.activo ? 'inactivar' : 'activar' %>">
+      <button type="submit" class="boton <%= docente.activo ? 'boton--peligro' : '' %>">
+        <%= docente.activo ? 'Inactivar docente' : 'Activar docente' %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.asignaturas %></span>
+    <span class="indicador__etiqueta">Asignaturas asignadas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.activas %></span>
+    <span class="indicador__etiqueta">Asignaturas activas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.matriculados %></span>
+    <span class="indicador__etiqueta">Estudiantes matriculados</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Datos del docente</h2>
+  <dl class="detalle">
+    <div><dt>Documento</dt><dd><%= docente.documento %></dd></div>
+    <div><dt>Correo electrónico</dt><dd><%= docente.email %></dd></div>
+    <div><dt>Teléfono</dt><dd><%= docente.telefono || 'No registrado' %></dd></div>
+    <div><dt>Especialidad</dt><dd><%= docente.especialidad || 'No registrada' %></dd></div>
+    <div><dt>Registrado el</dt><dd><%= docente.creado_en %></dd></div>
+    <div>
+      <dt>Cuenta de acceso</dt>
+      <dd>
+        <% if (docente.usuario_id) { %>
+          <%= docente.usuario_email %>
+          <span class="etiqueta etiqueta--<%= docente.usuario_activo ? 'activo' : 'inactivo' %>">
+            <%= docente.usuario_activo ? 'Habilitada' : 'Deshabilitada' %>
+          </span>
+        <% } else { %>
+          Sin cuenta de acceso
+        <% } %>
+      </dd>
+    </div>
+  </dl>
+</section>
+
+<section class="tarjeta">
+  <h2>Asignaturas asignadas</h2>
+  <% if (asignaturas.length === 0) { %>
+    <div class="aviso aviso--alerta">Este docente no tiene asignaturas asignadas.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Créditos</th>
+            <th>Pesos (1/2/3)</th>
+            <th>Matriculados</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% asignaturas.forEach(function (asignatura) { %>
+            <tr>
+              <td><a href="/asignaturas/<%= asignatura.id %>"><%= asignatura.codigo %></a></td>
+              <td><%= asignatura.nombre %></td>
+              <td><%= asignatura.periodo %></td>
+              <td><%= asignatura.creditos %></td>
+              <td><%= asignatura.peso1 %>% / <%= asignatura.peso2 %>% / <%= asignatura.peso3 %>%</td>
+              <td><%= asignatura.matriculados %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= asignatura.activo ? 'activo' : 'inactivo' %>">
+                  <%= asignatura.activo ? 'Activa' : 'Inactiva' %>
+                </span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <% if (!docente.activo) { %>
+    <p class="texto-suave">
+      El docente está inactivo y su cuenta de acceso fue deshabilitada, pero sus asignaturas,
+      matrículas y calificaciones se conservan.
+    </p>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

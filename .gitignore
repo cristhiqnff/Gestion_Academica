@@ -1,0 +1,15 @@
+node_modules/
+.env
+.env.*
+!.env.example
+
+datos/*.db
+datos/*.db-wal
+datos/*.db-shm
+datos/*.log
+
+*.log
+coverage/
+rendimiento/resultados/
+.DS_Store
+Thumbs.db

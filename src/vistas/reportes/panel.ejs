@@ -1,0 +1,122 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= esAdmin ? 'Reportes y estadísticas' : 'Reportes de mis asignaturas' %></h1>
+    <p class="texto-suave">
+      <%= esAdmin ? 'Todas las asignaturas del sistema.' : 'Solo las asignaturas que tienes asignadas.' %>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton" href="/reportes/exportar.csv">Descargar CSV</a>
+    <% if (esAdmin) { %>
+      <a class="boton boton--claro" href="/reportes/estudiantes">Reporte por estudiante</a>
+    <% } %>
+  </div>
+</section>
+
+<% if (sinPerfil) { %>
+  <div class="aviso aviso--alerta">
+    Tu usuario docente no tiene un perfil asociado. No hay asignaturas para reportar.
+  </div>
+<% } %>
+
+<div class="aviso aviso--alerta">
+  <strong>Criterios de cálculo:</strong> solo se contabilizan las matrículas
+  <strong>activas</strong>. Las matrículas <strong>retiradas</strong> se muestran
+  aparte y quedan excluidas de conteos y promedios. Las notas
+  <strong>pendientes</strong> no equivalen a cero: se excluyen del promedio, de la
+  nota máxima y de la mínima. El promedio es la media de las definitivas de las
+  matrículas activas con las tres notas registradas.
+</div>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.matriculados %></span>
+    <span class="indicador__etiqueta">Matrículas activas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.retiradas %></span>
+    <span class="indicador__etiqueta">Retiradas (excluidas)</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.conDefinitiva %></span>
+    <span class="indicador__etiqueta">Con definitiva</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.promedio === null ? '—' : resumen.promedio %></span>
+    <span class="indicador__etiqueta">Promedio general</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.aprobados %></span>
+    <span class="indicador__etiqueta">Aprobados</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.reprobados %></span>
+    <span class="indicador__etiqueta">Reprobados</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= resumen.pendientes %></span>
+    <span class="indicador__etiqueta">Pendientes</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Resumen por asignatura</h2>
+  <% if (asignaturas.length === 0) { %>
+    <div class="aviso aviso--alerta">No hay asignaturas con matrículas para reportar.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <% if (esAdmin) { %><th>Docente</th><% } %>
+            <th>Activos</th>
+            <th>Retiradas</th>
+            <th>Promedio</th>
+            <th>Aprobados</th>
+            <th>Reprobados</th>
+            <th>Pendientes</th>
+            <th>Máx. / Mín.</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% asignaturas.forEach(function (asignatura) { %>
+            <tr>
+              <td><%= asignatura.codigo %></td>
+              <td><%= asignatura.nombre %></td>
+              <td><%= asignatura.periodo %></td>
+              <% if (esAdmin) { %><td><%= asignatura.docente_nombre %></td><% } %>
+              <td><%= asignatura.matriculados %></td>
+              <td><%= asignatura.retiradas %></td>
+              <td><%= asignatura.promedio === null ? '—' : asignatura.promedio %></td>
+              <td><%= asignatura.aprobados %></td>
+              <td><%= asignatura.reprobados %></td>
+              <td><%= asignatura.pendientes %></td>
+              <td>
+                <%= asignatura.maxima === null ? '—' : asignatura.maxima %> /
+                <%= asignatura.minima === null ? '—' : asignatura.minima %>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/reportes/asignaturas/<%= asignatura.id %>">
+                    Ver reporte
+                  </a>
+                  <a class="boton boton--claro boton--pequeno" href="/reportes/asignaturas/<%= asignatura.id %>/exportar.csv">
+                    CSV
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

@@ -1,0 +1,88 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina">
+  <h1><%= modo === 'crear' ? 'Nuevo estudiante' : 'Editar estudiante' %></h1>
+  <p class="texto-suave">
+    Los campos marcados con <strong>*</strong> son obligatorios.
+  </p>
+</section>
+
+<section class="tarjeta">
+  <form action="<%= accion %>" method="post" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="rejilla rejilla--formulario">
+      <div class="campo <%= errores.documento ? 'campo--error' : '' %>">
+        <label for="documento">Documento *</label>
+        <input id="documento" name="documento" type="text" inputmode="numeric"
+               value="<%= valores.documento %>" required maxlength="20"
+               pattern="[0-9]{4,20}" placeholder="Ej. 1001">
+        <% if (errores.documento) { %><span class="mensaje-campo"><%= errores.documento %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.email ? 'campo--error' : '' %>">
+        <label for="email">Correo electrónico *</label>
+        <input id="email" name="email" type="email" value="<%= valores.email %>"
+               required maxlength="120" placeholder="estudiante@correo.edu.co">
+        <% if (errores.email) { %><span class="mensaje-campo"><%= errores.email %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.nombres ? 'campo--error' : '' %>">
+        <label for="nombres">Nombres *</label>
+        <input id="nombres" name="nombres" type="text" value="<%= valores.nombres %>"
+               required maxlength="80" placeholder="Ej. Ana María">
+        <% if (errores.nombres) { %><span class="mensaje-campo"><%= errores.nombres %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.apellidos ? 'campo--error' : '' %>">
+        <label for="apellidos">Apellidos *</label>
+        <input id="apellidos" name="apellidos" type="text" value="<%= valores.apellidos %>"
+               required maxlength="80" placeholder="Ej. Torres">
+        <% if (errores.apellidos) { %><span class="mensaje-campo"><%= errores.apellidos %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.fecha_nacimiento ? 'campo--error' : '' %>">
+        <label for="fecha_nacimiento">Fecha de nacimiento</label>
+        <input id="fecha_nacimiento" name="fecha_nacimiento" type="date"
+               value="<%= valores.fecha_nacimiento %>"
+               max="<%= new Date().toISOString().slice(0, 10) %>">
+        <% if (errores.fecha_nacimiento) { %><span class="mensaje-campo"><%= errores.fecha_nacimiento %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.semestre ? 'campo--error' : '' %>">
+        <label for="semestre">Semestre *</label>
+        <select id="semestre" name="semestre" required>
+          <option value="">Selecciona un semestre</option>
+          <% for (let numero = 1; numero <= 12; numero++) { %>
+            <option value="<%= numero %>" <%= String(valores.semestre) === String(numero) ? 'selected' : '' %>>
+              <%= numero %>
+            </option>
+          <% } %>
+        </select>
+        <% if (errores.semestre) { %><span class="mensaje-campo"><%= errores.semestre %></span><% } %>
+      </div>
+    </div>
+
+    <div class="campo <%= errores.programa ? 'campo--error' : '' %>">
+      <label for="programa">Programa académico *</label>
+      <input id="programa" name="programa" type="text" value="<%= valores.programa %>"
+             required maxlength="100" list="programas" placeholder="Ej. Ingeniería Informática">
+      <datalist id="programas">
+        <% programas.forEach(function (programa) { %>
+          <option value="<%= programa %>"></option>
+        <% }); %>
+      </datalist>
+      <% if (errores.programa) { %><span class="mensaje-campo"><%= errores.programa %></span><% } %>
+    </div>
+
+    <div class="acciones">
+      <button type="submit" class="boton">
+        <%= modo === 'crear' ? 'Registrar estudiante' : 'Guardar cambios' %>
+      </button>
+      <a class="boton boton--claro"
+         href="<%= estudianteId ? '/estudiantes/' + estudianteId : '/estudiantes' %>">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<%- include('../plantillas/pie') %>

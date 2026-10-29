@@ -1,0 +1,79 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Reporte por estudiante</h1>
+    <p class="texto-suave">Promedio general e historial de cada estudiante.</p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/reportes">Volver a reportes</a>
+    <a class="boton" href="/reportes/estudiantes/exportar.csv">Descargar CSV</a>
+  </div>
+</section>
+
+<div class="aviso aviso--alerta">
+  El promedio general usa solo las matrículas <strong>activas</strong> con las tres
+  notas registradas. Las matrículas <strong>retiradas</strong> y las notas
+  <strong>pendientes</strong> se excluyen del promedio (un pendiente no es cero).
+</div>
+
+<section class="tarjeta">
+  <h2>Estudiantes</h2>
+  <% if (estudiantes.length === 0) { %>
+    <div class="aviso aviso--alerta">No hay estudiantes registrados.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Estudiante</th>
+            <th>Programa</th>
+            <th>Estado</th>
+            <th>Activas</th>
+            <th>Retiradas</th>
+            <th>Con definitiva</th>
+            <th>Promedio general</th>
+            <th>Aprobadas</th>
+            <th>Reprobadas</th>
+            <th>Pendientes</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% estudiantes.forEach(function (estudiante) { %>
+            <tr>
+              <td><%= estudiante.documento %></td>
+              <td><%= estudiante.nombres %> <%= estudiante.apellidos %></td>
+              <td><%= estudiante.programa %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= estudiante.activo ? 'activo' : 'inactivo' %>">
+                  <%= estudiante.activo ? 'Activo' : 'Inactivo' %>
+                </span>
+              </td>
+              <td><%= estudiante.matriculados %></td>
+              <td><%= estudiante.retiradas %></td>
+              <td><%= estudiante.conDefinitiva %></td>
+              <td><%= estudiante.promedio === null ? '—' : estudiante.promedio %></td>
+              <td><%= estudiante.aprobados %></td>
+              <td><%= estudiante.reprobados %></td>
+              <td><%= estudiante.pendientes %></td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/reportes/estudiantes/<%= estudiante.id %>">
+                    Ver historial
+                  </a>
+                  <a class="boton boton--claro boton--pequeno" href="/reportes/estudiantes/<%= estudiante.id %>/exportar.csv">
+                    CSV
+                  </a>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

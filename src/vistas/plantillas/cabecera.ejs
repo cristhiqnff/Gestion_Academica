@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= titulo %> · Gestión Académica</title>
+  <link rel="stylesheet" href="/css/estilos.css">
+</head>
+<body>
+  <header class="cabecera">
+    <div class="contenedor cabecera__contenido">
+      <a class="marca" href="/">
+        <span class="marca__icono">GA</span>
+        <span>Gestión Académica</span>
+      </a>
+      <nav class="navegacion">
+        <% if (usuario) { %>
+          <% if (usuario.rol === 'admin') { %>
+            <a href="/admin">Panel administrativo</a>
+            <a href="/estudiantes">Estudiantes</a>
+            <a href="/docentes">Docentes</a>
+            <a href="/asignaturas">Asignaturas</a>
+            <a href="/matriculas">Matrículas</a>
+            <a href="/reportes">Reportes</a>
+          <% } else { %>
+            <a href="/docente">Mis asignaturas</a>
+            <a href="/reportes">Reportes</a>
+          <% } %>
+          <span class="navegacion__usuario">
+            <%= usuario.nombre %> · <%= usuario.rol === 'admin' ? 'Administrador' : 'Docente' %>
+          </span>
+          <form action="/sesion/cerrar" method="post" class="en-linea">
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button type="submit" class="boton boton--claro boton--pequeno">Cerrar sesión</button>
+          </form>
+        <% } %>
+      </nav>
+    </div>
+  </header>
+
+  <main class="contenedor">
+    <% if (mensaje) { %>
+      <div class="aviso aviso--exito"><%= mensaje %></div>
+    <% } %>
+    <% if (error) { %>
+      <div class="aviso aviso--error"><%= error %></div>
+    <% } %>

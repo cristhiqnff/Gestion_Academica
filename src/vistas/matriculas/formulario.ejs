@@ -1,0 +1,53 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina">
+  <h1>Nueva matrícula</h1>
+  <p class="texto-suave">Solo se pueden matricular estudiantes y asignaturas activas.</p>
+</section>
+
+<% if (estudiantes.length === 0 || asignaturas.length === 0) { %>
+  <div class="aviso aviso--alerta">
+    Para crear una matrícula necesitas al menos un estudiante activo y una asignatura activa.
+    <% if (estudiantes.length === 0) { %>No hay estudiantes activos.<% } %>
+    <% if (asignaturas.length === 0) { %>No hay asignaturas activas.<% } %>
+  </div>
+<% } %>
+
+<section class="tarjeta">
+  <form action="<%= accion %>" method="post" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="campo <%= errores.estudiante_id ? 'campo--error' : '' %>">
+      <label for="estudiante_id">Estudiante *</label>
+      <select id="estudiante_id" name="estudiante_id" required>
+        <option value="">Selecciona un estudiante</option>
+        <% estudiantes.forEach(function (estudiante) { %>
+          <option value="<%= estudiante.id %>" <%= String(valores.estudiante_id) === String(estudiante.id) ? 'selected' : '' %>>
+            <%= estudiante.apellidos %>, <%= estudiante.nombres %> · <%= estudiante.documento %>
+          </option>
+        <% }); %>
+      </select>
+      <% if (errores.estudiante_id) { %><span class="mensaje-campo"><%= errores.estudiante_id %></span><% } %>
+    </div>
+
+    <div class="campo <%= errores.asignatura_id ? 'campo--error' : '' %>">
+      <label for="asignatura_id">Asignatura *</label>
+      <select id="asignatura_id" name="asignatura_id" required>
+        <option value="">Selecciona una asignatura</option>
+        <% asignaturas.forEach(function (asignatura) { %>
+          <option value="<%= asignatura.id %>" <%= String(valores.asignatura_id) === String(asignatura.id) ? 'selected' : '' %>>
+            <%= asignatura.codigo %> · <%= asignatura.nombre %> · <%= asignatura.periodo %> · <%= asignatura.docente_nombre %>
+          </option>
+        <% }); %>
+      </select>
+      <% if (errores.asignatura_id) { %><span class="mensaje-campo"><%= errores.asignatura_id %></span><% } %>
+    </div>
+
+    <div class="acciones">
+      <button type="submit" class="boton">Matricular estudiante</button>
+      <a class="boton boton--claro" href="/matriculas">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<%- include('../plantillas/pie') %>

@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: gestion-academica
+    runtime: docker
+    plan: free
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /salud
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DB_PATH
+        value: /app/datos/academico.db
+      # Render genera un secreto aleatorio para las sesiones.
+      - key: SESSION_SECRET
+        generateValue: true
+      # Opcionales: sobrescriben las contraseñas iniciales de la demo.
+      # Se configuran manualmente en el panel de Render (Environment).
+      # - key: ADMIN_PASSWORD
+      #   sync: false
+      # - key: DOCENTE_PASSWORD
+      #   sync: false

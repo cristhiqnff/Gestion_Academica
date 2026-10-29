@@ -1,0 +1,55 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Mis asignaturas</h1>
+    <p class="texto-suave">
+      Sesión iniciada como <strong><%= nombre %></strong> (Docente).
+    </p>
+  </div>
+  <a class="boton" href="/reportes">Ver reportes de mis asignaturas</a>
+</section>
+
+<% if (sinPerfil) { %>
+  <div class="aviso aviso--alerta">
+    Tu usuario docente no tiene un perfil asociado. Contacta al administrador.
+  </div>
+<% } else if (asignaturas.length === 0) { %>
+  <div class="aviso aviso--alerta">Todavía no tienes asignaturas asignadas.</div>
+<% } else { %>
+  <section class="tarjeta">
+    <h2>Asignaturas asignadas</h2>
+    <table class="tabla">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Asignatura</th>
+          <th>Periodo</th>
+          <th>Créditos</th>
+          <th>Pesos (1/2/3)</th>
+          <th>Matriculados</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% asignaturas.forEach(function (a) { %>
+          <tr>
+            <td><%= a.codigo %></td>
+            <td><%= a.nombre %></td>
+            <td><%= a.periodo %></td>
+            <td><%= a.creditos %></td>
+            <td><%= a.peso1 %>% / <%= a.peso2 %>% / <%= a.peso3 %>%</td>
+            <td><%= a.matriculados %></td>
+            <td>
+              <a class="boton boton--claro boton--pequeno" href="/docente/asignaturas/<%= a.id %>">
+                Ver estudiantes y notas
+              </a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </section>
+<% } %>
+
+<%- include('../plantillas/pie') %>

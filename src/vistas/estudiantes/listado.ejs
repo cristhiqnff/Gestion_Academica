@@ -1,0 +1,120 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Estudiantes</h1>
+    <p class="texto-suave">Registra, consulta y actualiza la información académica de los estudiantes.</p>
+  </div>
+  <a class="boton" href="/estudiantes/nuevo">Nuevo estudiante</a>
+</section>
+
+<form class="filtros" action="/estudiantes" method="get">
+  <div class="campo">
+    <label for="q">Buscar</label>
+    <input id="q" name="q" type="search" value="<%= busqueda %>"
+           placeholder="Nombre, documento o correo">
+  </div>
+
+  <div class="campo">
+    <label for="estado">Estado</label>
+    <select id="estado" name="estado">
+      <option value="todos" <%= estado === 'todos' ? 'selected' : '' %>>Todos</option>
+      <option value="activo" <%= estado === 'activo' ? 'selected' : '' %>>Activos</option>
+      <option value="inactivo" <%= estado === 'inactivo' ? 'selected' : '' %>>Inactivos</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="porPagina">Registros por página</label>
+    <select id="porPagina" name="porPagina">
+      <% tamanosPagina.forEach(function (tamano) { %>
+        <option value="<%= tamano %>" <%= porPagina === tamano ? 'selected' : '' %>><%= tamano %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton">Filtrar</button>
+    <a class="boton boton--claro" href="/estudiantes">Limpiar</a>
+  </div>
+</form>
+
+<p class="texto-suave">
+  Mostrando <strong><%= filas.length %></strong> de <strong><%= total %></strong> estudiantes.
+</p>
+
+<% if (filas.length === 0) { %>
+  <div class="aviso aviso--alerta">
+    No se encontraron estudiantes con los criterios de búsqueda.
+  </div>
+<% } else { %>
+  <section class="tarjeta">
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Estudiante</th>
+            <th>Programa</th>
+            <th>Semestre</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% filas.forEach(function (estudiante) { %>
+            <tr class="fila-estudiante">
+              <td><%= estudiante.documento %></td>
+              <td>
+                <span class="celda-principal"><%= estudiante.nombres %> <%= estudiante.apellidos %></span>
+                <span class="campo__ayuda"><%= estudiante.email %></span>
+              </td>
+              <td><%= estudiante.programa %></td>
+              <td><%= estudiante.semestre %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= estudiante.activo ? 'activo' : 'inactivo' %>">
+                  <%= estudiante.activo ? 'Activo' : 'Inactivo' %>
+                </span>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/estudiantes/<%= estudiante.id %>">Ver</a>
+                  <a class="boton boton--claro boton--pequeno" href="/estudiantes/<%= estudiante.id %>/editar">Editar</a>
+                  <form action="/estudiantes/<%= estudiante.id %>/estado" method="post" class="en-linea">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="accion" value="<%= estudiante.activo ? 'inactivar' : 'activar' %>">
+                    <button type="submit" class="boton boton--pequeno <%= estudiante.activo ? 'boton--peligro' : '' %>">
+                      <%= estudiante.activo ? 'Inactivar' : 'Activar' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% } %>
+
+<% if (totalPaginas > 1) { %>
+  <% const urlPagina = (numero) => `/estudiantes?q=${encodeURIComponent(busqueda)}&estado=${encodeURIComponent(estado)}&porPagina=${porPagina}&pagina=${numero}`; %>
+  <nav class="paginacion" aria-label="Paginación de estudiantes">
+    <% if (pagina > 1) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina - 1) %>">Anterior</a>
+    <% } %>
+    <% for (let numero = 1; numero <= totalPaginas; numero++) { %>
+      <% if (numero === pagina) { %>
+        <span class="paginacion__actual"><%= numero %></span>
+      <% } else { %>
+        <a class="paginacion__enlace" href="<%= urlPagina(numero) %>"><%= numero %></a>
+      <% } %>
+    <% } %>
+    <% if (pagina < totalPaginas) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina + 1) %>">Siguiente</a>
+    <% } %>
+    <span class="texto-suave">Página <%= pagina %> de <%= totalPaginas %></span>
+  </nav>
+<% } %>
+
+<%- include('../plantillas/pie') %>

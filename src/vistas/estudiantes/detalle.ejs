@@ -1,0 +1,110 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= estudiante.nombres %> <%= estudiante.apellidos %></h1>
+    <p class="texto-suave">
+      Documento <%= estudiante.documento %> ·
+      <span class="etiqueta etiqueta--<%= estudiante.activo ? 'activo' : 'inactivo' %>">
+        <%= estudiante.activo ? 'Activo' : 'Inactivo' %>
+      </span>
+    </p>
+  </div>
+  <div class="acciones">
+    <a class="boton boton--claro" href="/estudiantes">Volver al listado</a>
+    <a class="boton" href="/estudiantes/<%= estudiante.id %>/editar">Editar datos</a>
+    <form action="/estudiantes/<%= estudiante.id %>/estado" method="post" class="en-linea">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+      <input type="hidden" name="accion" value="<%= estudiante.activo ? 'inactivar' : 'activar' %>">
+      <button type="submit" class="boton <%= estudiante.activo ? 'boton--peligro' : '' %>">
+        <%= estudiante.activo ? 'Inactivar estudiante' : 'Activar estudiante' %>
+      </button>
+    </form>
+  </div>
+</section>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.matriculas %></span>
+    <span class="indicador__etiqueta">Asignaturas matriculadas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.aprobadas %></span>
+    <span class="indicador__etiqueta">Aprobadas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.reprobadas %></span>
+    <span class="indicador__etiqueta">Reprobadas</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= resumen.pendientes %></span>
+    <span class="indicador__etiqueta">Pendientes</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.calificaciones %></span>
+    <span class="indicador__etiqueta">Calificaciones registradas</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Datos personales</h2>
+  <dl class="detalle">
+    <div><dt>Documento</dt><dd><%= estudiante.documento %></dd></div>
+    <div><dt>Correo electrónico</dt><dd><%= estudiante.email %></dd></div>
+    <div><dt>Programa</dt><dd><%= estudiante.programa %></dd></div>
+    <div><dt>Semestre</dt><dd><%= estudiante.semestre %></dd></div>
+    <div><dt>Fecha de nacimiento</dt><dd><%= estudiante.fecha_nacimiento || 'No registrada' %></dd></div>
+    <div><dt>Registrado el</dt><dd><%= estudiante.creado_en %></dd></div>
+  </dl>
+</section>
+
+<section class="tarjeta">
+  <h2>Historial académico</h2>
+  <% if (historial.length === 0) { %>
+    <div class="aviso aviso--alerta">Este estudiante no tiene matrículas registradas.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Corte 1</th>
+            <th>Corte 2</th>
+            <th>Corte 3</th>
+            <th>Definitiva</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% historial.forEach(function (fila) { %>
+            <tr>
+              <td><%= fila.codigo %></td>
+              <td><%= fila.asignatura %></td>
+              <td><%= fila.periodo %></td>
+              <td><%= fila.corte1 !== null ? fila.corte1 : '—' %></td>
+              <td><%= fila.corte2 !== null ? fila.corte2 : '—' %></td>
+              <td><%= fila.corte3 !== null ? fila.corte3 : '—' %></td>
+              <td><%= fila.definitiva !== null ? fila.definitiva : '—' %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado.toLowerCase() %>"><%= fila.estado %></span>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+
+  <% if (!estudiante.activo) { %>
+    <p class="texto-suave">
+      El estudiante está inactivo, pero conserva
+      <strong><%= dependencias.matriculas %></strong> matrículas y
+      <strong><%= dependencias.calificaciones %></strong> calificaciones.
+      No se elimina información académica.
+    </p>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

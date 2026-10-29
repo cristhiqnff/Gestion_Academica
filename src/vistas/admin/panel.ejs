@@ -1,0 +1,76 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina">
+  <h1>Panel administrativo</h1>
+  <p class="texto-suave">
+    Sesión iniciada como <strong><%= usuario.nombre %></strong> (Administrador).
+  </p>
+</section>
+
+<section class="rejilla rejilla--tarjetas">
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.estudiantesActivos %></span>
+    <span class="indicador__etiqueta">Estudiantes activos</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.docentesActivos %></span>
+    <span class="indicador__etiqueta">Docentes activos</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.asignaturasActivas %></span>
+    <span class="indicador__etiqueta">Asignaturas activas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.matriculasActivas %></span>
+    <span class="indicador__etiqueta">Matrículas</span>
+  </article>
+  <article class="tarjeta indicador">
+    <span class="indicador__valor"><%= resumen.calificacionesRegistradas %></span>
+    <span class="indicador__etiqueta">Calificaciones registradas</span>
+  </article>
+  <article class="tarjeta indicador indicador--alerta">
+    <span class="indicador__valor"><%= resumen.notasPendientes %></span>
+    <span class="indicador__etiqueta">Notas pendientes</span>
+  </article>
+</section>
+
+<section class="tarjeta">
+  <h2>Módulos</h2>
+  <div class="rejilla rejilla--tarjetas">
+    <article class="tarjeta modulo">
+      <h3>Estudiantes</h3>
+      <p class="texto-suave">Registro, consulta, edición y estado de los estudiantes.</p>
+      <a class="boton boton--pequeno" href="/estudiantes">Gestionar estudiantes</a>
+    </article>
+    <article class="tarjeta modulo">
+      <h3>Docentes</h3>
+      <p class="texto-suave">Registro, cuentas de acceso, edición y estado de los docentes.</p>
+      <a class="boton boton--pequeno" href="/docentes">Gestionar docentes</a>
+    </article>
+    <article class="tarjeta modulo">
+      <h3>Asignaturas</h3>
+      <p class="texto-suave">Asignaturas, docente responsable y ponderaciones de los cortes.</p>
+      <a class="boton boton--pequeno" href="/asignaturas">Gestionar asignaturas</a>
+    </article>
+    <article class="tarjeta modulo">
+      <h3>Matrículas y notas</h3>
+      <p class="texto-suave">Inscripción de estudiantes, retiro lógico y calificaciones por corte.</p>
+      <a class="boton boton--pequeno" href="/matriculas">Gestionar matrículas</a>
+    </article>
+    <article class="tarjeta modulo">
+      <h3>Reportes y estadísticas</h3>
+      <p class="texto-suave">Promedios, aprobados, reprobados y pendientes por asignatura y estudiante.</p>
+      <a class="boton boton--pequeno" href="/reportes">Ver reportes</a>
+    </article>
+  </div>
+  <p class="texto-suave">
+    Los reportes se calculan en el momento y no modifican matrículas ni calificaciones.
+  </p>
+</section>
+
+<section class="tarjeta">
+  <h2>Estado del sistema</h2>
+  <p>La base de datos SQLite respondió correctamente y la sesión está activa.</p>
+</section>
+
+<%- include('../plantillas/pie') %>

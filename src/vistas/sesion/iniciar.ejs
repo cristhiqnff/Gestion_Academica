@@ -1,0 +1,48 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="acceso">
+  <div class="tarjeta acceso__caja">
+    <h1>Iniciar sesión</h1>
+    <p class="texto-suave">Ingresa con tu cuenta institucional para continuar.</p>
+
+    <% if (errorCredenciales) { %>
+      <div class="aviso aviso--error"><%= errorCredenciales %></div>
+    <% } %>
+    <% if (aviso) { %>
+      <div class="aviso aviso--exito"><%= aviso %></div>
+    <% } %>
+
+    <form action="/sesion/iniciar" method="post" class="formulario">
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input id="email" name="email" type="email" required autocomplete="username"
+               value="<%= typeof correo !== 'undefined' ? correo : '' %>"
+               placeholder="usuario@institucion.edu.co">
+      </div>
+
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" required minlength="8"
+               autocomplete="current-password" placeholder="Tu contraseña">
+      </div>
+
+      <div class="acciones">
+        <button type="submit" class="boton">Entrar</button>
+      </div>
+    </form>
+
+    <% if (mostrarAyuda) { %>
+      <div class="ayuda-desarrollo">
+        <p><strong>Credenciales de prueba (solo desarrollo)</strong></p>
+        <ul>
+          <li>Administrador: <code>admin@institucion.edu.co</code> / <code>Admin123*</code></li>
+          <li>Docente: <code>laura.gomez@institucion.edu.co</code> / <code>Docente123*</code></li>
+        </ul>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<%- include('../plantillas/pie') %>

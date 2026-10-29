@@ -1,0 +1,80 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Notas · <%= matricula.asignatura_codigo %></h1>
+    <p class="texto-suave">
+      <%= matricula.estudiante_nombres %> <%= matricula.estudiante_apellidos %> ·
+      <%= matricula.estudiante_documento %> ·
+      <%= matricula.asignatura_nombre %> · <%= matricula.asignatura_periodo %>
+    </p>
+  </div>
+  <div class="acciones">
+    <% if (esDocente) { %>
+      <a class="boton boton--claro" href="/docente/asignaturas/<%= matricula.asignatura_id %>">Volver a mi asignatura</a>
+    <% } else { %>
+      <a class="boton boton--claro" href="/matriculas/<%= matricula.id %>">Volver a la matrícula</a>
+    <% } %>
+  </div>
+</section>
+
+<% if (matricula.estado === 'retirada') { %>
+  <div class="aviso aviso--alerta">
+    Esta matrícula está retirada. Las notas se conservan, pero conviene verificar si corresponde editarlas.
+  </div>
+<% } %>
+
+<section class="tarjeta">
+  <h2>Resumen actual</h2>
+  <dl class="detalle">
+    <div><dt>Ponderaciones</dt><dd><%= matricula.peso1 %>% / <%= matricula.peso2 %>% / <%= matricula.peso3 %>%</dd></div>
+    <div><dt>Notas registradas</dt><dd><%= resumen.registradas %>/3</dd></div>
+    <div><dt>Definitiva</dt><dd><%= resumen.definitiva === null ? '—' : resumen.definitiva %></dd></div>
+    <div>
+      <dt>Estado</dt>
+      <dd><span class="etiqueta etiqueta--<%= resumen.estado.toLowerCase() %>"><%= resumen.estado %></span></dd>
+    </div>
+  </dl>
+</section>
+
+<section class="tarjeta">
+  <h2>Registrar calificaciones</h2>
+  <p class="texto-suave">
+    Cada nota debe estar entre 0.0 y 5.0. Deja un campo vacío si la nota aún no existe:
+    se guardará como pendiente, nunca como cero. La definitiva se calcula automáticamente
+    y no se almacena.
+  </p>
+
+  <form action="/matriculas/<%= matricula.id %>/notas" method="post" class="formulario" novalidate>
+    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+
+    <div class="rejilla rejilla--pesos">
+      <div class="campo <%= errores.nota1 ? 'campo--error' : '' %>">
+        <label for="nota1">Corte 1 (peso <%= matricula.peso1 %>%)</label>
+        <input id="nota1" name="nota1" type="text" inputmode="decimal"
+               value="<%= valores.nota1 %>" placeholder="0.0 a 5.0">
+        <% if (errores.nota1) { %><span class="mensaje-campo"><%= errores.nota1 %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.nota2 ? 'campo--error' : '' %>">
+        <label for="nota2">Corte 2 (peso <%= matricula.peso2 %>%)</label>
+        <input id="nota2" name="nota2" type="text" inputmode="decimal"
+               value="<%= valores.nota2 %>" placeholder="0.0 a 5.0">
+        <% if (errores.nota2) { %><span class="mensaje-campo"><%= errores.nota2 %></span><% } %>
+      </div>
+
+      <div class="campo <%= errores.nota3 ? 'campo--error' : '' %>">
+        <label for="nota3">Corte 3 (peso <%= matricula.peso3 %>%)</label>
+        <input id="nota3" name="nota3" type="text" inputmode="decimal"
+               value="<%= valores.nota3 %>" placeholder="0.0 a 5.0">
+        <% if (errores.nota3) { %><span class="mensaje-campo"><%= errores.nota3 %></span><% } %>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="submit" class="boton">Guardar calificaciones</button>
+    </div>
+  </form>
+</section>
+
+<%- include('../plantillas/pie') %>

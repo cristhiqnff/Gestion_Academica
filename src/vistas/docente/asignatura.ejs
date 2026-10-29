@@ -1,0 +1,69 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1><%= asignatura.codigo %> · <%= asignatura.nombre %></h1>
+    <p class="texto-suave">
+      Periodo <%= asignatura.periodo %> · <%= asignatura.creditos %> créditos ·
+      Ponderaciones <%= asignatura.peso1 %>% / <%= asignatura.peso2 %>% / <%= asignatura.peso3 %>%
+      <span class="etiqueta etiqueta--<%= asignatura.activo ? 'activo' : 'inactivo' %>">
+        <%= asignatura.activo ? 'Activa' : 'Inactiva' %>
+      </span>
+    </p>
+  </div>
+  <a class="boton boton--claro" href="/docente">Volver a mis asignaturas</a>
+</section>
+
+<section class="tarjeta">
+  <h2>Estudiantes matriculados</h2>
+  <% if (matriculas.length === 0) { %>
+    <div class="aviso aviso--alerta">Esta asignatura todavía no tiene estudiantes matriculados.</div>
+  <% } else { %>
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Documento</th>
+            <th>Estudiante</th>
+            <th>Matrícula</th>
+            <th>Corte 1</th>
+            <th>Corte 2</th>
+            <th>Corte 3</th>
+            <th>Definitiva</th>
+            <th>Estado académico</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% matriculas.forEach(function (fila) { %>
+            <tr class="fila-matricula">
+              <td><%= fila.documento %></td>
+              <td><%= fila.estudiante %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.matricula_estado === 'activa' ? 'activo' : 'inactivo' %>">
+                  <%= fila.matricula_estado === 'activa' ? 'Activa' : 'Retirada' %>
+                </span>
+              </td>
+              <td><%= fila.corte1 === null ? '—' : fila.corte1 %></td>
+              <td><%= fila.corte2 === null ? '—' : fila.corte2 %></td>
+              <td><%= fila.corte3 === null ? '—' : fila.corte3 %></td>
+              <td><%= fila.definitiva === null ? '—' : fila.definitiva %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado_academico.toLowerCase() %>">
+                  <%= fila.estado_academico %>
+                </span>
+              </td>
+              <td>
+                <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.matricula_id %>/notas">
+                  Registrar notas
+                </a>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<%- include('../plantillas/pie') %>

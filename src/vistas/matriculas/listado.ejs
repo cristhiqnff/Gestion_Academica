@@ -1,0 +1,167 @@
+<%- include('../plantillas/cabecera') %>
+
+<section class="encabezado-pagina encabezado-pagina--acciones">
+  <div>
+    <h1>Matrículas</h1>
+    <p class="texto-suave">Estudiantes inscritos en cada asignatura y estado de sus calificaciones.</p>
+  </div>
+  <a class="boton" href="/matriculas/nueva">Nueva matrícula</a>
+</section>
+
+<form class="filtros" action="/matriculas" method="get">
+  <div class="campo">
+    <label for="q">Buscar</label>
+    <input id="q" name="q" type="search" value="<%= busqueda %>"
+           placeholder="Estudiante, documento, código o asignatura">
+  </div>
+
+  <div class="campo">
+    <label for="estudiante">Estudiante</label>
+    <select id="estudiante" name="estudiante">
+      <option value="">Todos</option>
+      <% estudiantes.forEach(function (estudiante) { %>
+        <option value="<%= estudiante.id %>" <%= String(estudianteId || '') === String(estudiante.id) ? 'selected' : '' %>>
+          <%= estudiante.apellidos %>, <%= estudiante.nombres %><%= estudiante.activo ? '' : ' (inactivo)' %>
+        </option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="asignatura">Asignatura</label>
+    <select id="asignatura" name="asignatura">
+      <option value="">Todas</option>
+      <% asignaturas.forEach(function (asignatura) { %>
+        <option value="<%= asignatura.id %>" <%= String(asignaturaId || '') === String(asignatura.id) ? 'selected' : '' %>>
+          <%= asignatura.codigo %> · <%= asignatura.nombre %><%= asignatura.activo ? '' : ' (inactiva)' %>
+        </option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="periodo">Periodo</label>
+    <select id="periodo" name="periodo">
+      <option value="">Todos</option>
+      <% periodos.forEach(function (valor) { %>
+        <option value="<%= valor %>" <%= periodo === valor ? 'selected' : '' %>><%= valor %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="estado">Estado</label>
+    <select id="estado" name="estado">
+      <option value="todos" <%= estado === 'todos' ? 'selected' : '' %>>Todas</option>
+      <option value="activa" <%= estado === 'activa' ? 'selected' : '' %>>Activas</option>
+      <option value="retirada" <%= estado === 'retirada' ? 'selected' : '' %>>Retiradas</option>
+    </select>
+  </div>
+
+  <div class="campo">
+    <label for="porPagina">Registros por página</label>
+    <select id="porPagina" name="porPagina">
+      <% tamanosPagina.forEach(function (tamano) { %>
+        <option value="<%= tamano %>" <%= porPagina === tamano ? 'selected' : '' %>><%= tamano %></option>
+      <% }); %>
+    </select>
+  </div>
+
+  <div class="acciones">
+    <button type="submit" class="boton">Filtrar</button>
+    <a class="boton boton--claro" href="/matriculas">Limpiar</a>
+  </div>
+</form>
+
+<p class="texto-suave">
+  Mostrando <strong><%= filas.length %></strong> de <strong><%= total %></strong> matrículas.
+</p>
+
+<% if (filas.length === 0) { %>
+  <div class="aviso aviso--alerta">No se encontraron matrículas con los criterios de búsqueda.</div>
+<% } else { %>
+  <section class="tarjeta">
+    <div class="tabla-contenedor">
+      <table class="tabla">
+        <thead>
+          <tr>
+            <th>Estudiante</th>
+            <th>Asignatura</th>
+            <th>Periodo</th>
+            <th>Docente</th>
+            <th>Matrícula</th>
+            <th>Notas</th>
+            <th>Definitiva</th>
+            <th>Estado académico</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% filas.forEach(function (fila) { %>
+            <tr class="fila-matricula">
+              <td>
+                <a class="celda-principal" href="/estudiantes/<%= fila.estudiante_id %>">
+                  <%= fila.estudiante_nombres %> <%= fila.estudiante_apellidos %>
+                </a>
+                <span class="campo__ayuda"><%= fila.estudiante_documento %></span>
+              </td>
+              <td>
+                <a href="/asignaturas/<%= fila.asignatura_id %>"><%= fila.asignatura_codigo %></a>
+                <span class="campo__ayuda"><%= fila.asignatura_nombre %></span>
+              </td>
+              <td><%= fila.asignatura_periodo %></td>
+              <td><%= fila.docente_nombre %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado === 'activa' ? 'activo' : 'inactivo' %>">
+                  <%= fila.estado === 'activa' ? 'Activa' : 'Retirada' %>
+                </span>
+              </td>
+              <td><%= fila.notas_registradas %>/3</td>
+              <td><%= fila.definitiva === null ? '—' : fila.definitiva %></td>
+              <td>
+                <span class="etiqueta etiqueta--<%= fila.estado_academico.toLowerCase() %>">
+                  <%= fila.estado_academico %>
+                </span>
+              </td>
+              <td>
+                <div class="tabla__acciones">
+                  <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.id %>">Ver</a>
+                  <a class="boton boton--claro boton--pequeno" href="/matriculas/<%= fila.id %>/notas">Notas</a>
+                  <form action="/matriculas/<%= fila.id %>/estado" method="post" class="en-linea">
+                    <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                    <input type="hidden" name="accion" value="<%= fila.estado === 'activa' ? 'retirar' : 'reactivar' %>">
+                    <button type="submit" class="boton boton--pequeno <%= fila.estado === 'activa' ? 'boton--peligro' : '' %>">
+                      <%= fila.estado === 'activa' ? 'Retirar' : 'Reactivar' %>
+                    </button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </section>
+<% } %>
+
+<% if (totalPaginas > 1) { %>
+  <% const urlPagina = (numero) => `/matriculas?q=${encodeURIComponent(busqueda)}&estudiante=${estudianteId || ''}&asignatura=${asignaturaId || ''}&periodo=${encodeURIComponent(periodo)}&estado=${encodeURIComponent(estado)}&porPagina=${porPagina}&pagina=${numero}`; %>
+  <nav class="paginacion" aria-label="Paginación de matrículas">
+    <% if (pagina > 1) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina - 1) %>">Anterior</a>
+    <% } %>
+    <% for (let numero = 1; numero <= totalPaginas; numero++) { %>
+      <% if (numero === pagina) { %>
+        <span class="paginacion__actual"><%= numero %></span>
+      <% } else { %>
+        <a class="paginacion__enlace" href="<%= urlPagina(numero) %>"><%= numero %></a>
+      <% } %>
+    <% } %>
+    <% if (pagina < totalPaginas) { %>
+      <a class="paginacion__enlace" href="<%= urlPagina(pagina + 1) %>">Siguiente</a>
+    <% } %>
+    <span class="texto-suave">Página <%= pagina %> de <%= totalPaginas %></span>
+  </nav>
+<% } %>
+
+<%- include('../plantillas/pie') %>
